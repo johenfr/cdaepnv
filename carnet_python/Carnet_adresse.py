@@ -561,14 +561,22 @@ class Carnet_adresse(object):
         self.fenetre = New_Toplevel_1(root)
         carnet_support.init(root, self.fenetre)
         #
-        _fichier = open(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', 'r')
+        try:
+            _fichier = open(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', 'r')
+        except:
+            _fichier = open(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', 'w')
+            _fichier.write('<?xml version="1.0" encoding="UTF-8"?>\n<Carnet/>')
+            _fichier.close()
+            _fichier = open(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', 'r')
         self.carnet = ElementTree.parse(_fichier,
                                    parser=ElementTree.XMLParser(encoding="utf-8"))
+        _fichier.close()
         self.liste = self.carnet.getroot()
         #
         _fichier_vide = open("./Carnet_d_adresses_vide.xml")
         self.modele = ElementTree.parse(_fichier_vide,
                         parser=ElementTree.XMLParser(encoding="utf-8")).getroot()
+        _fichier_vide.close()
         #
         #configuration des éléments...
         #onglet Détails
@@ -624,7 +632,7 @@ class Carnet_adresse(object):
         self.fenetre.TButton15.config(command=lambda : self.personne_deselection(2))
         self.fenetre.Scrolledlistbox1.bind('<<ListboxSelect>>', lambda e: self.selection(e))
         self.fenetre.Scrolledlistbox2.bind('<<ListboxSelect>>', lambda e: self.selection(e))
-    
+        #
         root.mainloop()
 
 if __name__ == '__main__':
