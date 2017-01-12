@@ -69,7 +69,7 @@ class New_Toplevel_1:
             [('selected', _compcolor), ('active',_ana2color)])
 
         top.geometry("600x732+510+136")
-        top.title("New Toplevel 1")
+        top.title("Carnet d'adresses")
         top.configure(highlightcolor="black")
 
 

@@ -624,7 +624,7 @@ class Carnet_adresse(object):
         self.fenetre.TCombobox1.configure(values=self.value_liste)
         self.fenetre.TCombobox1.current(0)
         self.fenetre.TCombobox1.bind('<<ComboboxSelected>>',
-                                lambda e: lettre_selection(self.fenetre.TCombobox1))
+                                lambda e: self.lettre_selection(self.fenetre.TCombobox1))
         self.lettre_selection(self.fenetre.TCombobox1)
         #selection d'une personne
         self.fenetre.TButton8.config(command=lambda : self.personne_selection(1))
