@@ -5,7 +5,6 @@
 import xml.etree.ElementTree as ElementTree
 import Tkinter as Tkinter
 from Tkinter import StringVar, Tk, PhotoImage, Canvas
-#from tkinter import *
 from ttk import *
 import tkMessageBox
 import tkFont
@@ -13,35 +12,6 @@ from carnet import New_Toplevel_1, carnet_support
 from copy import deepcopy
 from os import remove, environ
 
-######################################################################
-# imports masqués non nécéssaires pour une utilisation python directe
-# explicités pour pyinstaller
-# from reportlab.pdfbase import _fontdata_widths_courier
-# from reportlab.pdfbase import _fontdata_widths_courierbold
-# from reportlab.pdfbase import _fontdata_widths_courieroblique
-# from reportlab.pdfbase import _fontdata_widths_courierboldoblique
-# from reportlab.pdfbase import _fontdata_widths_helvetica
-# from reportlab.pdfbase import _fontdata_widths_helveticabold
-# from reportlab.pdfbase import _fontdata_widths_helveticaoblique
-# from reportlab.pdfbase import _fontdata_widths_helveticaboldoblique
-# from reportlab.pdfbase import _fontdata_widths_timesroman
-# from reportlab.pdfbase import _fontdata_widths_timesbold
-# from reportlab.pdfbase import _fontdata_widths_timesitalic
-# from reportlab.pdfbase import _fontdata_widths_timesbolditalic
-# from reportlab.pdfbase import _fontdata_widths_symbol
-# from reportlab.pdfbase import _fontdata_widths_zapfdingbats
-# #
-# from reportlab.pdfbase import _fontdata_enc_winansi
-# from reportlab.pdfbase import _fontdata_enc_macroman
-# from reportlab.pdfbase import _fontdata_enc_standard
-# from reportlab.pdfbase import _fontdata_enc_symbol
-# from reportlab.pdfbase import _fontdata_enc_zapfdingbats
-# from reportlab.pdfbase import _fontdata_enc_pdfdoc
-# from reportlab.pdfbase import _fontdata_enc_macexpert
-# ######################################################################
-#
-# from reportlab.lib.pagesizes import A6, landscape
-# from reportlab.pdfgen import canvas
 import subprocess
 from time import sleep
 from threading import Thread
@@ -82,9 +52,6 @@ class Carnet_adresse(object):
         #Canvas dans la fenêtre
         canvas_e.delete(Tkinter.ALL)
         canvas_e.create_rectangle(0, 0, 423, 278, fill='White', outline='White')
-        #Enveloppe PDF
-        #enveloppe = canvas.Canvas('enveloppe.ps', pagesize=landscape(A6))
-        #width, height = A6
         #Ecriture
         position_x = 50
         position_y = 170
@@ -102,12 +69,6 @@ class Carnet_adresse(object):
                                     font=_FONT, text=quidam.find('CodePostal').text + ' ' +
                                          quidam.find('Ville').text,
                                     anchor='nw')
-            #Enveloppe PDF
-            # enveloppe.create_text(120, 120, text=_nom, anchor='nw')
-            # enveloppe.create_text(120, 100, text=quidam.find('Adresse1').text, anchor='nw')
-            # enveloppe.create_text(120, 80, text=quidam.find('Adresse2').text, anchor='nw')
-            # enveloppe.create_text(120, 60, text=quidam.find('CodePostal').text + ' ' +
-            #                               quidam.find('Ville').text, anchor='nw')
         else:
             #Canvas
             canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
@@ -118,11 +79,6 @@ class Carnet_adresse(object):
                                     font=_FONT, text=quidam.find('CodePostal').text + ' ' +
                                          quidam.find('Ville').text,
                                     anchor='nw')
-            #Enveloppe PDF
-            # enveloppe.create_text(120, 120, text=_nom, anchor='nw')
-            # enveloppe.create_text(120, 100, text=quidam.find('Adresse1').text, anchor='nw')
-            # enveloppe.create_text(120, 80, text=quidam.find('CodePostal').text + ' ' +
-            #                               quidam.find('Ville').text, anchor='nw')
         canvas_e.postscript(file='enveloppe_tempo.ps')
         # Insertion du fichier pfa dans le fichier ps 
         with open('enveloppe.ps', 'w') as outfile:
@@ -135,7 +91,7 @@ class Carnet_adresse(object):
                                 if line[0] != "%" :
                                     outfile.write(line)
         remove('enveloppe_tempo.ps')
-        canvas_e.create_image(335,10, image=self.timbre, anchor='nw')
+        canvas_e.create_image(335, 10,  image=self.timbre, anchor='nw')
         #enveloppe.save()
 
 
