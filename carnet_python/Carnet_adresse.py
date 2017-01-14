@@ -46,9 +46,7 @@ class Carnet_adresse(object):
                     _prenom + _nom_famille
         return _nom
 
-
-    def enveloppe(self,canvas_e, quidam):
-        _FONT = tkFont.Font(family='French Script MT', weight='normal', size=14)
+    def remplir_canvas(self,canvas_e, quidam, _FONT):
         #Canvas dans la fenêtre
         canvas_e.delete(Tkinter.ALL)
         canvas_e.create_rectangle(0, 0, 423, 278, fill='White', outline='White')
@@ -58,7 +56,7 @@ class Carnet_adresse(object):
         _nom = self.format_nom(quidam)
         if quidam.find('Adresse2').text:
             #Canvas
-            canvas_e.create_text(position_x, position_y, font="Altitude", text=_nom, anchor='nw')
+            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
             canvas_e.create_text(position_x, position_y+20,
                                     font=_FONT, text=quidam.find(unicode('Adresse1')).text,
                                     anchor='nw')
@@ -79,8 +77,13 @@ class Carnet_adresse(object):
                                     font=_FONT, text=quidam.find('CodePostal').text + ' ' +
                                          quidam.find('Ville').text,
                                     anchor='nw')
+
+    def enveloppe(self,canvas_e, quidam):
+        _FONT = tkFont.Font(family='French Script MT', weight='normal', size=20)
+        _FONT_min = tkFont.Font(family='French Script MT', weight='normal', size=15)
+        self.remplir_canvas(canvas_e, quidam, _FONT)
         canvas_e.postscript(file='enveloppe_tempo.ps')
-        # Insertion du fichier pfa dans le fichier ps 
+        # Insertion du fichier pfa dans le fichier ps
         with open('enveloppe.ps', 'w') as outfile:
             with open('enveloppe_tempo.ps') as infile:
                 for line in infile:
@@ -91,6 +94,8 @@ class Carnet_adresse(object):
                                 if line[0] != "%" :
                                     outfile.write(line)
         remove('enveloppe_tempo.ps')
+        #réduire la taille pour l'aperçu
+        self.remplir_canvas(canvas_e, quidam, _FONT_min)
         canvas_e.create_image(335, 10,  image=self.timbre, anchor='nw')
         #enveloppe.save()
 
@@ -111,10 +116,10 @@ class Carnet_adresse(object):
             #self.id_imp = subprocess.Popen(["ping", "-c", "4", "-q", "8.8.8.8"],
             #                          stdout=subprocess.PIPE)
             self.id_imp = subprocess.Popen(["lpr", "-P", imprimante, "-o", "media=4X6",
-                                       "-o", "sides=one-sided",
+                                       "-o", "sides=one-sided", "-o", "fit-to-page",
                                        "-o", "landscape", "enveloppe.ps"])
             if type_imp == 1 :
-                thread_verif = Thread(None, verif_impression, None, (), {})
+                thread_verif = Thread(None, self.verif_impression, None, (), {})
                 thread_verif.start()
 
     def imprimer_liste(self, imprimante, *args):
@@ -148,7 +153,7 @@ class Carnet_adresse(object):
         self.fenetre.Button9.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
-        remove("enveloppe.pdf")
+        
 
 
     def verif_impression(self, *args):
@@ -157,7 +162,7 @@ class Carnet_adresse(object):
         self.fenetre.Button9.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
-        remove("enveloppe.pdf")
+        
 
 
     def lettre_selection(self, _parent):
