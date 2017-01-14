@@ -394,7 +394,7 @@ class Carnet_adresse(object):
             #print ajout.attrib
             ajout.text = self.fenetre.Entry18.get()
             element.append(ajout)
-            self.carnet.write(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', encoding='UTF-8')
+            self.carnet.write(self.nom_fichier, encoding='UTF-8')
         self.fenetre.Text3.delete(0.0, Tkinter.END)
         self.fenetre.Entry17.delete(0, Tkinter.END)
         self.fenetre.Entry18.delete(0, Tkinter.END)
@@ -408,7 +408,7 @@ class Carnet_adresse(object):
             if notel.attrib['nom'] == nom and \
                 notel.text == num:
                 element.remove(notel)
-        self.carnet.write(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', encoding='UTF-8')
+        self.carnet.write(self.nom_fichier, encoding='UTF-8')
         self.fenetre.Text3.delete(0.0, Tkinter.END)
         self.fenetre.Entry17.delete(0, Tkinter.END)
         self.fenetre.Entry18.delete(0, Tkinter.END)
@@ -477,7 +477,7 @@ class Carnet_adresse(object):
                         self.fenetre.Button1.config(command=lambda : self.enregistrer(0))
                         self.fenetre.Button2.configure(state=Tkinter.DISABLED)
                         #
-                        self.carnet.write(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', encoding='UTF-8')
+                        self.carnet.write(self.nom_fichier, encoding='UTF-8')
                         self.fenetre.Text1.configure(state=Tkinter.NORMAL)
                         self.fenetre.Text1.insert(0.0, self.fenetre.Entry3.get() +
                                     " " + self.fenetre.Entry2.get() +
@@ -520,7 +520,7 @@ class Carnet_adresse(object):
                             ajout.find('Civilité'.decode('utf-8')).set('autre',
                                                     self.fenetre.Entry7.get())
                 self.liste.append(ajout)
-                self.carnet.write(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', encoding='UTF-8')
+                self.carnet.write(self.nom_fichier, encoding='UTF-8')
                 self.fenetre.Text1.configure(state=Tkinter.NORMAL)
                 self.fenetre.Text1.insert(0.0, self.fenetre.Entry3.get() + " " +
                                     self.fenetre.Entry2.get() + " enregistré.\n".decode('utf-8'))
@@ -560,15 +560,24 @@ class Carnet_adresse(object):
         carnet_support.set_Tk_var()
         self.fenetre = New_Toplevel_1(root)
         carnet_support.init(root, self.fenetre)
+        self.nom_fichier = environ['HOME'] + '/.carnet/Carnet_d_adresses.xml'
         #
-        _fichier = open(environ['HOME'] + '/.carnet/Carnet_d_adresses.xml', 'r')
+        try:
+            _fichier = open(self.nom_fichier, 'r')
+        except:
+            _fichier = open(self.nom_fichier, 'w')
+            _fichier.write('<?xml version="1.0" encoding="UTF-8"?>\n<Carnet/>')
+            _fichier.close()
+            _fichier = open(self.nom_fichier, 'r')
         self.carnet = ElementTree.parse(_fichier,
                                    parser=ElementTree.XMLParser(encoding="utf-8"))
+        _fichier.close()
         self.liste = self.carnet.getroot()
         #
         _fichier_vide = open("./Carnet_d_adresses_vide.xml")
         self.modele = ElementTree.parse(_fichier_vide,
                         parser=ElementTree.XMLParser(encoding="utf-8")).getroot()
+        _fichier_vide.close()
         #
         #configuration des éléments...
         #onglet Détails
@@ -624,7 +633,7 @@ class Carnet_adresse(object):
         self.fenetre.TButton15.config(command=lambda : self.personne_deselection(2))
         self.fenetre.Scrolledlistbox1.bind('<<ListboxSelect>>', lambda e: self.selection(e))
         self.fenetre.Scrolledlistbox2.bind('<<ListboxSelect>>', lambda e: self.selection(e))
-    
+        #
         root.mainloop()
 
 if __name__ == '__main__':

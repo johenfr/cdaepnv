@@ -1,3 +1,4 @@
 *.pyc
 carnet_python/.komodotools/* 
 *.ps
+/.project
