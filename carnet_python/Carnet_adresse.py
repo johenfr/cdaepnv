@@ -79,8 +79,8 @@ class Carnet_adresse(object):
                                     anchor='nw')
 
     def enveloppe(self,canvas_e, quidam):
-        _FONT = tkFont.Font(family='French Script MT', weight='normal', size=20)
-        _FONT_min = tkFont.Font(family='French Script MT', weight='normal', size=15)
+        _FONT = tkFont.Font(family='Montez', weight='normal', size=20)
+        _FONT_min = tkFont.Font(family='Montez', weight='normal', size=15)
         self.remplir_canvas(canvas_e, quidam, _FONT)
         canvas_e.postscript(file='enveloppe_tempo.ps')
         # Insertion du fichier pfa dans le fichier ps
@@ -89,7 +89,7 @@ class Carnet_adresse(object):
                 for line in infile:
                     outfile.write(line)
                     if "EndComments" in line :
-                        with open('FrenchScriptMt.pfa') as fontfile:
+                        with open('Montez.pfa') as fontfile:
                             for line in fontfile:
                                 if line[0] != "%" :
                                     outfile.write(line)
