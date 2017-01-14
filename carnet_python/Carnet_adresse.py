@@ -5,7 +5,6 @@
 import xml.etree.ElementTree as ElementTree
 import Tkinter as Tkinter
 from Tkinter import StringVar, Tk, PhotoImage, Canvas
-#from tkinter import *
 from ttk import *
 import tkMessageBox
 import tkFont
@@ -13,35 +12,6 @@ from carnet import New_Toplevel_1, carnet_support
 from copy import deepcopy
 from os import remove, environ
 
-######################################################################
-# imports masqués non nécéssaires pour une utilisation python directe
-# explicités pour pyinstaller
-# from reportlab.pdfbase import _fontdata_widths_courier
-# from reportlab.pdfbase import _fontdata_widths_courierbold
-# from reportlab.pdfbase import _fontdata_widths_courieroblique
-# from reportlab.pdfbase import _fontdata_widths_courierboldoblique
-# from reportlab.pdfbase import _fontdata_widths_helvetica
-# from reportlab.pdfbase import _fontdata_widths_helveticabold
-# from reportlab.pdfbase import _fontdata_widths_helveticaoblique
-# from reportlab.pdfbase import _fontdata_widths_helveticaboldoblique
-# from reportlab.pdfbase import _fontdata_widths_timesroman
-# from reportlab.pdfbase import _fontdata_widths_timesbold
-# from reportlab.pdfbase import _fontdata_widths_timesitalic
-# from reportlab.pdfbase import _fontdata_widths_timesbolditalic
-# from reportlab.pdfbase import _fontdata_widths_symbol
-# from reportlab.pdfbase import _fontdata_widths_zapfdingbats
-# #
-# from reportlab.pdfbase import _fontdata_enc_winansi
-# from reportlab.pdfbase import _fontdata_enc_macroman
-# from reportlab.pdfbase import _fontdata_enc_standard
-# from reportlab.pdfbase import _fontdata_enc_symbol
-# from reportlab.pdfbase import _fontdata_enc_zapfdingbats
-# from reportlab.pdfbase import _fontdata_enc_pdfdoc
-# from reportlab.pdfbase import _fontdata_enc_macexpert
-# ######################################################################
-#
-# from reportlab.lib.pagesizes import A6, landscape
-# from reportlab.pdfgen import canvas
 import subprocess
 from time import sleep
 from threading import Thread
@@ -76,22 +46,17 @@ class Carnet_adresse(object):
                     _prenom + _nom_famille
         return _nom
 
-
-    def enveloppe(self,canvas_e, quidam):
-        _FONT = tkFont.Font(family='French Script MT', weight='normal', size=14)
+    def remplir_canvas(self,canvas_e, quidam, _FONT):
         #Canvas dans la fenêtre
         canvas_e.delete(Tkinter.ALL)
         canvas_e.create_rectangle(0, 0, 423, 278, fill='White', outline='White')
-        #Enveloppe PDF
-        #enveloppe = canvas.Canvas('enveloppe.ps', pagesize=landscape(A6))
-        #width, height = A6
         #Ecriture
         position_x = 50
         position_y = 170
         _nom = self.format_nom(quidam)
         if quidam.find('Adresse2').text:
             #Canvas
-            canvas_e.create_text(position_x, position_y, font="Altitude", text=_nom, anchor='nw')
+            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
             canvas_e.create_text(position_x, position_y+20,
                                     font=_FONT, text=quidam.find(unicode('Adresse1')).text,
                                     anchor='nw')
@@ -102,12 +67,6 @@ class Carnet_adresse(object):
                                     font=_FONT, text=quidam.find('CodePostal').text + ' ' +
                                          quidam.find('Ville').text,
                                     anchor='nw')
-            #Enveloppe PDF
-            # enveloppe.create_text(120, 120, text=_nom, anchor='nw')
-            # enveloppe.create_text(120, 100, text=quidam.find('Adresse1').text, anchor='nw')
-            # enveloppe.create_text(120, 80, text=quidam.find('Adresse2').text, anchor='nw')
-            # enveloppe.create_text(120, 60, text=quidam.find('CodePostal').text + ' ' +
-            #                               quidam.find('Ville').text, anchor='nw')
         else:
             #Canvas
             canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
@@ -118,13 +77,13 @@ class Carnet_adresse(object):
                                     font=_FONT, text=quidam.find('CodePostal').text + ' ' +
                                          quidam.find('Ville').text,
                                     anchor='nw')
-            #Enveloppe PDF
-            # enveloppe.create_text(120, 120, text=_nom, anchor='nw')
-            # enveloppe.create_text(120, 100, text=quidam.find('Adresse1').text, anchor='nw')
-            # enveloppe.create_text(120, 80, text=quidam.find('CodePostal').text + ' ' +
-            #                               quidam.find('Ville').text, anchor='nw')
+
+    def enveloppe(self,canvas_e, quidam):
+        _FONT = tkFont.Font(family='French Script MT', weight='normal', size=20)
+        _FONT_min = tkFont.Font(family='French Script MT', weight='normal', size=15)
+        self.remplir_canvas(canvas_e, quidam, _FONT)
         canvas_e.postscript(file='enveloppe_tempo.ps')
-        # Insertion du fichier pfa dans le fichier ps 
+        # Insertion du fichier pfa dans le fichier ps
         with open('enveloppe.ps', 'w') as outfile:
             with open('enveloppe_tempo.ps') as infile:
                 for line in infile:
@@ -135,7 +94,9 @@ class Carnet_adresse(object):
                                 if line[0] != "%" :
                                     outfile.write(line)
         remove('enveloppe_tempo.ps')
-        canvas_e.create_image(335,10, image=self.timbre, anchor='nw')
+        #réduire la taille pour l'aperçu
+        self.remplir_canvas(canvas_e, quidam, _FONT_min)
+        canvas_e.create_image(335, 10,  image=self.timbre, anchor='nw')
         #enveloppe.save()
 
 
@@ -155,10 +116,10 @@ class Carnet_adresse(object):
             #self.id_imp = subprocess.Popen(["ping", "-c", "4", "-q", "8.8.8.8"],
             #                          stdout=subprocess.PIPE)
             self.id_imp = subprocess.Popen(["lpr", "-P", imprimante, "-o", "media=4X6",
-                                       "-o", "sides=one-sided",
+                                       "-o", "sides=one-sided", "-o", "fit-to-page",
                                        "-o", "landscape", "enveloppe.ps"])
             if type_imp == 1 :
-                thread_verif = Thread(None, verif_impression, None, (), {})
+                thread_verif = Thread(None, self.verif_impression, None, (), {})
                 thread_verif.start()
 
     def imprimer_liste(self, imprimante, *args):
@@ -192,7 +153,7 @@ class Carnet_adresse(object):
         self.fenetre.Button9.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
-        remove("enveloppe.pdf")
+        
 
 
     def verif_impression(self, *args):
@@ -201,7 +162,7 @@ class Carnet_adresse(object):
         self.fenetre.Button9.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
         self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
-        remove("enveloppe.pdf")
+        
 
 
     def lettre_selection(self, _parent):
@@ -624,7 +585,7 @@ class Carnet_adresse(object):
         self.fenetre.TCombobox1.configure(values=self.value_liste)
         self.fenetre.TCombobox1.current(0)
         self.fenetre.TCombobox1.bind('<<ComboboxSelected>>',
-                                lambda e: lettre_selection(self.fenetre.TCombobox1))
+                                lambda e: self.lettre_selection(self.fenetre.TCombobox1))
         self.lettre_selection(self.fenetre.TCombobox1)
         #selection d'une personne
         self.fenetre.TButton8.config(command=lambda : self.personne_selection(1))

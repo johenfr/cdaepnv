@@ -69,7 +69,7 @@ class New_Toplevel_1:
             [('selected', _compcolor), ('active',_ana2color)])
 
         top.geometry("600x732+510+136")
-        top.title("New Toplevel 1")
+        top.title("Carnet d'adresses")
         top.configure(highlightcolor="black")
 
 
@@ -231,7 +231,7 @@ class New_Toplevel_1:
         self.TButton6.configure(text='''Chercher''')
 
         self.TCheckbutton5 = ttk.Checkbutton(self.TNotebook1_pg0)
-        self.TCheckbutton5.place(relx=0.17, rely=0.04, relwidth=0.16
+        self.TCheckbutton5.place(relx=0.17, rely=0.04, relwidth=0.17
                 , relheight=0.0, height=18)
         self.TCheckbutton5.configure(variable=carnet_support.tch58)
         self.TCheckbutton5.configure(takefocus="")
