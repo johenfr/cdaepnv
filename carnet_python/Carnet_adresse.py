@@ -3,7 +3,7 @@
 # développé par Joseph
 
 import xml.etree.ElementTree as ElementTree
-import Tkinter as Tkinter
+import Tkinter
 from Tkinter import StringVar, Tk, PhotoImage, Canvas, END
 from ttk import *
 import tkMessageBox
@@ -364,7 +364,7 @@ class Carnet_adresse(object):
         self.fenetre.Text3.delete(0.0, Tkinter.END)
         self.fenetre.Entry17.delete(0, Tkinter.END)
         self.fenetre.Entry18.delete(0, Tkinter.END)
-        chercher(0)
+        self.chercher(0)
 
     def supprimer(self, num, *args):
         if len(self.fenetre.Entry2.get()) > 1 or \
