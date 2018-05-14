@@ -700,6 +700,6 @@ bind "_TopLevel" <Destroy> {
     if {[winfo toplevel %W] == "%W"} {incr _topcount -1}
 }
 
-Window show .
+#Window show .
 Window show .top37
 
