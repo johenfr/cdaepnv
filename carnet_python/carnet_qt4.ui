@@ -119,6 +119,12 @@
         <height>23</height>
        </rect>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
        <string>Autre</string>
       </property>
@@ -397,7 +403,7 @@
        <widget class="QPushButton" name="Button9">
         <property name="geometry">
          <rect>
-          <x>370</x>
+          <x>380</x>
           <y>10</y>
           <width>93</width>
           <height>28</height>
@@ -407,23 +413,10 @@
          <string>Imprimer</string>
         </property>
        </widget>
-       <widget class="QPlainTextEdit" name="plainTextEdit">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>140</y>
-          <width>431</width>
-          <height>151</height>
-         </rect>
-        </property>
-        <property name="plainText">
-         <string/>
-        </property>
-       </widget>
        <widget class="QFontComboBox" name="fontComboBox">
         <property name="geometry">
          <rect>
-          <x>40</x>
+          <x>140</x>
           <y>10</y>
           <width>227</width>
           <height>32</height>
@@ -432,6 +425,7 @@
         <property name="currentFont">
          <font>
           <family>Montez</family>
+          <pointsize>10</pointsize>
          </font>
         </property>
        </widget>
@@ -472,11 +466,40 @@
           <pixmap>timbre_pie_xii.gif</pixmap>
          </property>
         </widget>
+        <widget class="QPlainTextEdit" name="plainTextEdit">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>120</y>
+           <width>371</width>
+           <height>121</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-color: white</string>
+         </property>
+         <property name="plainText">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>121</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Police de caractère</string>
+        </property>
        </widget>
        <zorder>frame</zorder>
        <zorder>Button9</zorder>
-       <zorder>plainTextEdit</zorder>
        <zorder>fontComboBox</zorder>
+       <zorder>label_10</zorder>
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">

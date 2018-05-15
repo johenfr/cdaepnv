@@ -7,6 +7,9 @@ import os
 import xml.etree.ElementTree as ElementTree
 from copy import deepcopy
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt5.QtCore import QSizeF, Qt
+from PyQt5.QtGui import QPainter
 from carnet_qt4 import Ui_MainWindow
 
 class Carnet_adresse(object):
@@ -34,81 +37,54 @@ class Carnet_adresse(object):
         else:
             _nom = quidam.find('Civilité'.decode('utf-8')).attrib['autre'] + ' ' + \
                    _prenom + _nom_famille
+        _nom = _nom.replace("  ", " ")
         return _nom
 
-    def remplir_canvas(self, canvas_e, quidam, _FONT):
-        # Canvas dans la fenêtre
-        canvas_e.delete(Tkinter.ALL)
-        canvas_e.create_rectangle(0, 0, 423, 278, fill='White', outline='White')
-        # Ecriture
-        position_x = 50
-        position_y = 170
-        _nom = self.format_nom(quidam)
+    def enveloppe(self, quidam=None):
+        if quidam is None:
+            quidam = self.quidam
+        self.fenetre.plainTextEdit.setPlainText("")
+        police = self.fenetre.fontComboBox.currentFont()
+        police.setPixelSize(20)
+        self.fenetre.plainTextEdit.setFont(police)
+        self.fenetre.plainTextEdit.insertPlainText(self.format_nom(quidam) + "\n")
         if quidam.find('Adresse2').text:
-            # Canvas
-            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
-            canvas_e.create_text(position_x, position_y + 20,
-                                 font=_FONT, text=quidam.find(unicode('Adresse1')).text,
-                                 anchor='nw')
-            canvas_e.create_text(position_x, position_y + 40,
-                                 font=_FONT, text=quidam.find('Adresse2').text,
-                                 anchor='nw')
-            canvas_e.create_text(position_x, position_y + 60,
-                                 font=_FONT, text=quidam.find('CodePostal').text + ' ' +
-                                                  quidam.find('Ville').text,
-                                 anchor='nw')
+            try:
+                self.fenetre.plainTextEdit.insertPlainText(quidam.find(unicode('Adresse1')).text + "\n")
+            except: pass
+            try:
+                self.fenetre.plainTextEdit.insertPlainText(quidam.find('Adresse2').text + "\n")
+            except: pass
+            try:
+                self.fenetre.plainTextEdit.insertPlainText(quidam.find(unicode('CodePostal')).text + " " + 
+                                                        quidam.find('Ville').text)
+            except: pass
         else:
-            # Canvas
-            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
-            canvas_e.create_text(position_x, position_y + 20,
-                                 font=_FONT, text=quidam.find('Adresse1').text,
-                                 anchor='nw')
-            canvas_e.create_text(position_x, position_y + 40,
-                                 font=_FONT, text=quidam.find('CodePostal').text + ' ' +
-                                                  quidam.find('Ville').text,
-                                 anchor='nw')
-
-    def enveloppe(self, canvas_e, quidam):
-        _FONT = tkFont.Font(family='Montez', weight='normal', size=20)
-        _FONT_min = tkFont.Font(family='Montez', weight='normal', size=15)
-        self.remplir_canvas(canvas_e, quidam, _FONT)
-        canvas_e.postscript(file='enveloppe_tempo.ps')
-        # Insertion du fichier pfa dans le fichier ps
-        with open('enveloppe.ps', 'w') as outfile:
-            with open('enveloppe_tempo.ps') as infile:
-                for line in infile:
-                    outfile.write(line)
-                    if "EndComments" in line:
-                        with open('Montez.pfa') as fontfile:
-                            for line in fontfile:
-                                if line[0] != "%":
-                                    outfile.write(line)
-        remove('enveloppe_tempo.ps')
-        # réduire la taille pour l'aperçu
-        self.remplir_canvas(canvas_e, quidam, _FONT_min)
-        canvas_e.create_image(335, 10, image=self.timbre, anchor='nw')
+            try:
+                self.fenetre.plainTextEdit.insertPlainText(quidam.find(unicode('Adresse1')).text + "\n")
+            except: pass
+            try:
+                self.fenetre.plainTextEdit.insertPlainText(quidam.find(unicode('CodePostal')).text + " " + 
+                        quidam.find('Ville').text)
+            except: pass
 
     def imprimer(self, type_imp, *args):
-        self.fenetre.Button9.configure(state=Tkinter.DISABLED)
-        self.fenetre.TButton10.configure(state=Tkinter.DISABLED)
-        self.fenetre.TButton11.configure(state=Tkinter.DISABLED)
-        imprimante = subprocess.Popen(["lpstat", "-d"],
-                                      stdout=subprocess.PIPE).stdout.readline().split(': ')[1][0:-1]
-        #
-        if type_imp == 2:
-            self.id_imp = None
-            thread_verif = Thread(None, self.imprimer_liste, None, (imprimante,), {})
-            thread_verif.start()
-        else:
-            # options génériques données par man lp
-            # self.id_imp = subprocess.Popen(["ping", "-c", "4", "-q", "8.8.8.8"],
-            #                          stdout=subprocess.PIPE)
-            self.id_imp = subprocess.Popen(["lpr", "-P", imprimante, "-o", "media=4X6",
-                                            "-o", "sides=one-sided", "-o", "fit-to-page",
-                                            "-o", "landscape", "enveloppe.ps"])
-            if type_imp == 1:
-                thread_verif = Thread(None, self.verif_impression, None, (), {})
-                thread_verif.start()
+        self.fenetre.Button9.setDisabled(True)
+        imprimante = QPrinter(QPrinter.PrinterResolution)
+        imprimante.setDuplex(False)
+        imprimante.setPaperSource(imprimante.Auto)
+        imprimante.setPaperSize(QSizeF(4,6), imprimante.Inch)
+        imprimante.setPageMargins(20.0, 60.0, 10.0, 10.0, imprimante.Millimeter)
+        imprimante.setOrientation(imprimante.Landscape)
+        imprimante.setColorMode(imprimante.Color)
+        painter = QPainter()
+        painter.begin(imprimante)
+        police = self.fenetre.fontComboBox.currentFont()
+        police.setPixelSize(18)
+        painter.setFont(police)
+        painter.drawText(0,0,imprimante.width(),imprimante.height(), Qt.AlignLeft+Qt.TextWordWrap, self.fenetre.plainTextEdit.toPlainText())
+        painter.end()
+        self.fenetre.Button9.setDisabled(False)
 
     def imprimer_liste(self, imprimante, *args):
         liste = self.fenetre.Scrolledlistbox2.get(0, Tkinter.END)
@@ -251,7 +227,7 @@ class Carnet_adresse(object):
                     except:
                         pass
                     try:
-                        self.fenetre.Entry5.setText(_personne.find('CodePostal').text)
+                        self.fenetre.Entrsides=one-sidedy5.setText(_personne.find('CodePostal').text)
                     except:
                         pass
                     try:
@@ -276,7 +252,8 @@ class Carnet_adresse(object):
                         pass
                     self.fenetre.Button11.clicked.connect(lambda state : self.ajouter(tele))
                     self.fenetre.Button12.clicked.connect(lambda state : self.supprimer_tel(tele))
-                    #self.enveloppe(self.fenetre.Canvas2, _personne)
+                    self.quidam = _personne
+                    self.enveloppe(_personne)
                 ecrire = False
                 test += 1
         if test > (num + 1):
@@ -590,6 +567,7 @@ class Carnet_adresse(object):
         self.fenetre.Button3.clicked.connect(lambda state: self.supprimer(0))
         self.fenetre.Button3.setDisabled(True)
         self.fenetre.Button9.clicked.connect(lambda state: self.imprimer(1))
+        self.fenetre.fontComboBox.currentFontChanged.connect (lambda state: self.enveloppe())
         self.window.show()
         sys.exit(self.app.exec_())
 
