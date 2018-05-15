@@ -2,3 +2,4 @@
 carnet_python/.komodotools/* 
 *.ps
 /.project
+carnet_python/.idea/*
