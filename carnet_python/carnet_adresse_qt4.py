@@ -5,7 +5,10 @@
 import sys
 import os
 import time
-import xml.etree.ElementTree as ElementTree
+try:
+    import xml.etree.ElementTree as ElementTree
+except ImportError as e:
+    import ElementTree
 from copy import deepcopy
 from pprint import pprint
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
@@ -157,46 +160,30 @@ class Carnet_adresse(object):
 
     def personne_selection(self, nombre, *args):
         if nombre == 1:
-            _ajout = self.fenetre.Scrolledlistbox1.selection_get()
-            if _ajout not in self.fenetre.Scrolledlistbox2.get(0, Tkinter.END):
-                self.fenetre.Scrolledlistbox2.insert(0, _ajout)
-                for _personne in self.liste:
-                    _nom = self.format_nom(_personne)
-                    if _nom in _ajout:
-                        if not _personne.find('Sélection'):
-                            liste_select = ElementTree.Element('Sélection')
-                            liste_select.text = '1'
-                            _personne.append(liste_select)
-                        else:
-                            _personne.find('Sélection').text = '1'
-        else:
-            for _personne in self.liste:
-                _nom = self.format_nom(_personne)
-                if _nom not in self.fenetre.Scrolledlistbox2.get(0, Tkinter.END):
-                    self.fenetre.Scrolledlistbox2.insert(0, _nom)
-                if not _personne.find('Sélection'):
-                    liste_select = ElementTree.Element('Sélection')
-                    liste_select.text = '1'
-                    _personne.append(liste_select)
-                else:
-                    _personne.find('Sélection').text = '1'
+            _ajout = self.fenetre.listWidget.selectedItems()[0].text()
+            if  not self.fenetre.listWidget_2.findItems(_ajout, Qt.MatchFixedString):
+                self.fenetre.listWidget_2.addItem(_ajout)
 
     def personne_deselection(self, nombre, *args):
-        if nombre == 1:
-            num = self.fenetre.Scrolledlistbox2.curselection()
-            self.fenetre.Scrolledlistbox2.delete(num)
-        else:
-            self.fenetre.Scrolledlistbox2.setText("")
+        for i in self.fenetre.listWidget_2.selectedItems():
+            self.fenetre.listWidget_2.takeItem(self.fenetre.listWidget_2.row(i))
 
     def selection(self, *args):
         _ajout = self.fenetre.listWidget.currentItem().text()
-        print(_ajout)
         for _personne in self.liste:
             _nom = self.format_nom(_personne)
             if _nom in _ajout:
                 self.quidam = _personne
                 self.enveloppe(_personne)
 
+    def selection2(self, *args):
+        _ajout = self.fenetre.listWidget_2.currentItem().text()
+        for _personne in self.liste:
+            _nom = self.format_nom(_personne)
+            if _nom in _ajout:
+                self.quidam = _personne
+                self.enveloppe(_personne)
+    
     def chercher(self, num, nom_i=1, prenom_i=1, *args):
         if nom_i == 1:
             _nom_i = self.fenetre.Entry2.text()
@@ -238,7 +225,7 @@ class Carnet_adresse(object):
                     except:
                         pass
                     try:
-                        self.fenetre.Entrsides = one-sidedy5.setText(_personne.find('CodePostal').text)
+                        self.fenetre.Entry5.setText(_personne.find('CodePostal').text)
                     except:
                         pass
                     try:
@@ -354,8 +341,10 @@ class Carnet_adresse(object):
                 if _personne.find('Nom').text == self.fenetre.Entry2.get() and \
                     _personne.find('Prénom').text == self.fenetre.Entry3.get():
                     if num == 0:
+                        self.fenetre.Button3.clicked.disconnect()
                         self.fenetre.Button3.clicked.connect(lambda state : self.supprimer(1))
                         self.fenetre.Button2.setDisabled(False)
+                        self.fenetre.Button2.clicked.disconnect()
                         self.fenetre.Button2.clicked.connect(lambda state : self.supprimer(2))
                         self.fenetre.Button1.setDisabled(True)
                         self.fenetre.Text1.setDisabled(False)
@@ -373,7 +362,7 @@ class Carnet_adresse(object):
                         self.fenetre.Button2.clicked.connect(lambda state : self.enregistrer(2))
                         self.fenetre.Button1.setDisabled(False)
                         #
-                        self.carnet.write(self.nom_fichier, encoding='UTF-8')
+                        #self.carnet.write(self.nom_fichier, encoding='UTF-8')
                         entree = self.fenetre.Entry3.get() + " " + self.fenetre.Entry2.get()
                         self.tout_effacer()
                         self.fenetre.Text1.setDisabled(False)
@@ -410,6 +399,7 @@ class Carnet_adresse(object):
                     chgt = True
                     if num == 0:
                         self.fenetre.Button1.setText('''Modifier''')
+                        self.fenetre.Button1.clicked.disconnect()
                         self.fenetre.Button1.clicked.connect(lambda state: self.enregistrer(1))
                         self.fenetre.Button2.setDisabled(False)
                         self.fenetre.Button3.setDisabled(True)
@@ -473,6 +463,7 @@ class Carnet_adresse(object):
                         self.fenetre.Text1.setDisabled(True)
                     else:
                         self.fenetre.Button1.setText('''Enregistrer''')
+                        self.fenetre.Button1.clicked.disconnect()
                         self.fenetre.Button1.clicked.connect(lambda state: self.enregistrer(0))
                         self.fenetre.Button2.setDisabled(True)
                         self.fenetre.Text1.setDisabled(False)
@@ -518,7 +509,9 @@ class Carnet_adresse(object):
             for _personne in self.liste:
                 if _personne.find('Nom').text == self.fenetre.Entry2.get() and \
                         _personne.find('Prénom').text == self.fenetre.Entry3.get():
+                    self.fenetre.Button11.clicked.disconnect()
                     self.fenetre.Button11.clicked.connect(lambda state: self.ajouter(_personne))
+                    self.fenetre.Button12.clicked.disconnect()
                     self.fenetre.Button12.clicked.connect(lambda state: self.supprimer_tel(_personne))
     
     def changer_civilit(self, num, *args):
@@ -575,10 +568,16 @@ class Carnet_adresse(object):
         self.fenetre.Button3.clicked.connect(lambda state: self.supprimer(0))
         self.fenetre.Button3.setDisabled(True)
         self.fenetre.Button9.clicked.connect(lambda state: self.imprimer(1))
+        self.fenetre.TButton10.clicked.connect(lambda state: self.imprimer(1))
         self.fenetre.fontComboBox.currentFontChanged.connect (lambda state: self.enveloppe())
         self.fenetre.fontComboBox_2.currentFontChanged.connect (lambda state: self.enveloppe())
         self.fenetre.TCombobox1.currentTextChanged.connect(lambda state: self.lettre_selection())
         self.fenetre.listWidget.clicked.connect(lambda state: self.selection())
+        self.fenetre.listWidget_2.clicked.connect(lambda state: self.selection2())
+        self.fenetre.TButton8.clicked.connect(lambda state: self.personne_selection(1))
+        self.fenetre.TButton9.clicked.connect(lambda state: self.personne_deselection(1))
+        self.fenetre.TButton15.clicked.connect(lambda state: self.fenetre.listWidget_2.clear())
+        self.lettre_selection()
         self.window.show()
         sys.exit(self.app.exec_())
 

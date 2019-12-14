@@ -295,13 +295,13 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.Tcombobox_1.setCurrentIndex(1)
+        self.Tcombobox_1.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Carnet"))
         self.TCheckbutton1.setText(_translate("MainWindow", "Monsieur"))
         self.TCheckbutton2.setText(_translate("MainWindow", "Madame"))
         self.TCheckbutton3.setText(_translate("MainWindow", "Monsieur et Madame"))

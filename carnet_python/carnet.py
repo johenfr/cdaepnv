@@ -55,9 +55,9 @@ class Carnet_d_adresses:
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
-        font10 = "-family {DejaVu Sans} -size -12 -weight normal "  \
+        font10 = "-family {DejaVu Sans} -size -10 -weight normal "  \
             "-slant roman -underline 0 -overstrike 0"
-        font11 = "-family {DejaVu Sans Mono} -size -12 -weight normal "  \
+        font11 = "-family {DejaVu Sans Mono} -size -10 -weight normal "  \
             "-slant roman -underline 0 -overstrike 0"
         self.style = ttk.Style()
         if sys.platform == "win32":
@@ -574,6 +574,20 @@ class ScrolledListBox(AutoScroll, Listbox):
         AutoScroll.__init__(self, master)
 
 if __name__ == '__main__':
+    import sys
+
+    if sys.version_info.major is 3:
+        import tkinter as Tk, tkinter.font as tkFont
+    else:
+        import Tkinter as Tk, tkFont
+    root = Tk.Tk()
+    print(tkFont.families())
+    print(tkFont.names())
+    for police in tkFont.families():
+        if "ont" in police:
+            print(police)
+
+    exit()
     vp_start_gui()
 
 
