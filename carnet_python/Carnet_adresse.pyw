@@ -7,5 +7,4 @@
 from Carnet_adresse import *
 
 if __name__ == '__main__':
-    carnet = Carnet_adresse()
-    carnet.lancer()
+    carnet = CarnetAdresse()
