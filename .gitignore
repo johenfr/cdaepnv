@@ -3,3 +3,8 @@ carnet_python/.komodotools/*
 *.ps
 /.project
 carnet_python/.idea/*
+
+*.bak[0-9]
+
+
+carnet_python/print.pdf
