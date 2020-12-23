@@ -2,32 +2,33 @@
 # -*- coding: UTF-8 -*-
 # développé par Joseph
 
+import os
 import xml.etree.ElementTree as ElementTree
 
 try:
+    import tkinter as Tkinter
+    from tkinter import StringVar, Tk, PhotoImage, Canvas, END
+    from tkinter import ttk
+    from tkinter import messagebox as tkMessageBox
+    import tkinter.font as tkFont
+    unicode = str
+except ImportError:
     import Tkinter
     from Tkinter import StringVar, Tk, PhotoImage, Canvas, END
     # from ttk import *
     import ttk
     import tkMessageBox
     import tkFont
-except ImportError:
-    import tkinter as Tkinter
-    from tkinter import StringVar, Tk, PhotoImage, Canvas, END
-    # from tkinter.ttk import *
-    from tkinter import ttk
-    from tkinter import messagebox as tkMessageBox
-    import tkinter.font as tkFont
-    unicode = str
-
-from carnet import Carnet_d_adresses
-from carnet import carnet_support
-from copy import deepcopy
-from os import remove, environ
-
+    
 import subprocess
 from time import sleep
 from threading import Thread
+from copy import deepcopy
+import os
+
+from carnet import Carnet_d_adresses
+from carnet import carnet_support
+
 
 DEBUG = False
 
@@ -59,8 +60,9 @@ class CarnetAdresse(object):
             StringVar(),
             StringVar()
         ]
-        self.timbre = PhotoImage(file="./timbre_pie_xii.gif")
-        self.nom_fichier = environ['HOME'] + '/.carnet/Carnet_d_adresses.xml'
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.timbre = PhotoImage(file=os.path.join(self.dir_path, "timbre_pie_xii.gif"))
+        self.nom_fichier = os.environ['HOME'] + '/.carnet/Carnet_d_adresses.xml'
         #
         try:
             _fichier = open(self.nom_fichier, 'r')
@@ -75,7 +77,7 @@ class CarnetAdresse(object):
         self.liste = self.carnet.getroot()
         self.liste[:] = sorted(self.liste, key=self.clef)
         #
-        _fichier_vide = open("./Carnet_d_adresses_vide.xml")
+        _fichier_vide = open(os.path.join(self.dir_path, "Carnet_d_adresses_vide.xml"))
         self.modele = ElementTree.parse(_fichier_vide,
                                         parser=ElementTree.XMLParser(encoding="utf-8")).getroot()
         _fichier_vide.close()
@@ -211,7 +213,7 @@ class CarnetAdresse(object):
                             for line in fontfile:
                                 if line[0] != "%":
                                     outfile.write(line)
-        remove('enveloppe_tempo.ps')
+        os.remove('enveloppe_tempo.ps')
         # réduire la taille pour l'aperçu
         self.remplir_canvas(canvas_e, quidam, _FONT_min)
         canvas_e.create_image(335, 10, image=self.timbre, anchor='nw')
