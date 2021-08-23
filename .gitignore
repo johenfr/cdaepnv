@@ -1,12 +1,11 @@
 *.pyc
-carnet_python/.komodotools/* 
+**/.komodotools/* 
 *.ps
-/.project
-carnet_python/.idea/*
-
+**/.project
+**/.idea/*
 *.bak[0-9]
-
+*.kdev4
+**/.pydevproject
+*.prefs
 
 carnet_python/print.pdf
-
-*.kdev4

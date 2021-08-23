@@ -40,8 +40,7 @@ class Carnet_adresse(object):
         elif quidam.find('Civilité').text == '4':
             _nom = 'Mlle ' + _prenom + _nom_famille
         else:
-            _nom = quidam.find('Civilité').attrib['autre'] + ' ' + \
-                   _prenom + _nom_famille
+            _nom = quidam.find('Civilité').attrib['autre'] + ' ' + _prenom + _nom_famille
         _nom = _nom.replace("  ", " ")
         return _nom
 
@@ -56,22 +55,27 @@ class Carnet_adresse(object):
         if quidam.find('Adresse2').text:
             try:
                 self.fenetre.plainTextEdit.insertPlainText(quidam.find('Adresse1').text + "\n")
-            except: pass
+            except:
+                pass
             try:
                 self.fenetre.plainTextEdit.insertPlainText(quidam.find('Adresse2').text + "\n")
-            except: pass
+            except:
+                pass
             try:
                 self.fenetre.plainTextEdit.insertPlainText(quidam.find('CodePostal').text + " " + 
                                                         quidam.find('Ville').text)
-            except: pass
+            except:
+                pass
         else:
             try:
                 self.fenetre.plainTextEdit.insertPlainText(quidam.find('Adresse1').text + "\n")
-            except: pass
+            except:
+                pass
             try:
                 self.fenetre.plainTextEdit.insertPlainText(quidam.find('CodePostal').text + " " + 
                         quidam.find('Ville').text)
-            except: pass
+            except:
+                pass
         police = self.fenetre.fontComboBox_2.currentFont()
         police.setPixelSize(20)
         self.fenetre.plainTextEdit_2.setFont(police)

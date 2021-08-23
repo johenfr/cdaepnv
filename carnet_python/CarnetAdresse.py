@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 # développé par Joseph
 
@@ -6,25 +6,30 @@ import os
 import xml.etree.ElementTree as ElementTree
 
 try:
-    import tkinter as Tkinter
-    from tkinter import StringVar, Tk, PhotoImage, Canvas, END
+    # import tkinter as tk
+    from tkinter import StringVar
+    from tkinter import Tk
+    from tkinter import PhotoImage
+    from tkinter import Canvas
+    from tkinter import END, NORMAL, DISABLED, ALL
     from tkinter import ttk
     from tkinter import messagebox as tkMessageBox
     import tkinter.font as tkFont
     unicode = str
 except ImportError:
-    import Tkinter
-    from Tkinter import StringVar, Tk, PhotoImage, Canvas, END
+    # Python 2
+    import Tkinter as tk
+    from Tkinter import StringVar, Tk, PhotoImage, Canvas, END, NORMAL, DISABLED
     # from ttk import *
     import ttk
     import tkMessageBox
     import tkFont
-    
+
+ 
 import subprocess
 from time import sleep
 from threading import Thread
 from copy import deepcopy
-import os
 
 from carnet import Carnet_d_adresses
 from carnet import carnet_support
@@ -35,9 +40,9 @@ DEBUG = False
 
 class CarnetAdresse(object):
     def __init__(self):
-        self.value_liste = ['Toutes', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-                            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-                            'W', 'X', 'Y', 'Z']
+        self.value_liste = ['Toutes', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+                            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                            'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
         self.root = Tk()
         defaultFont = tkFont.Font(family="Libertine", size=9, weight="normal")
         default_font = tkFont.nametofont("TkDefaultFont")
@@ -61,7 +66,8 @@ class CarnetAdresse(object):
             StringVar()
         ]
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.timbre = PhotoImage(file=os.path.join(self.dir_path, "timbre_pie_xii.gif"))
+        self.timbre = PhotoImage(file=os.path.join(self.dir_path,
+                                                   "timbre_pie_xii.gif"))
         self.nom_fichier = os.environ['HOME'] + '/.carnet/Carnet_d_adresses.xml'
         #
         try:
@@ -72,14 +78,17 @@ class CarnetAdresse(object):
             _fichier.close()
             _fichier = open(self.nom_fichier, 'r')
         self.carnet = ElementTree.parse(_fichier,
-                                        parser=ElementTree.XMLParser(encoding="utf-8"))
+                                        parser=ElementTree.XMLParser(
+                                            encoding="utf-8"))
         _fichier.close()
         self.liste = self.carnet.getroot()
         self.liste[:] = sorted(self.liste, key=self.clef)
         #
-        _fichier_vide = open(os.path.join(self.dir_path, "Carnet_d_adresses_vide.xml"))
+        _fichier_vide = open(os.path.join(self.dir_path,
+                                          "Carnet_d_adresses_vide.xml"))
         self.modele = ElementTree.parse(_fichier_vide,
-                                        parser=ElementTree.XMLParser(encoding="utf-8")).getroot()
+                                        parser=ElementTree.XMLParser(
+                                            encoding="utf-8")).getroot()
         _fichier_vide.close()
         #
         # configuration des éléments...
@@ -98,9 +107,9 @@ class CarnetAdresse(object):
         self.fenetre.Button12.config(command=lambda: self.supprimer_tel(ElementTree.Element('rien')))
         self.fenetre.Button1.config(command=lambda: self.enregistrer(0))
         self.fenetre.Button2.config(command=lambda: self.enregistrer(2))
-        self.fenetre.Button2.configure(state=Tkinter.DISABLED)
+        self.fenetre.Button2.configure(state=DISABLED)
         self.fenetre.Button3.config(command=lambda: self.supprimer(0))
-        self.fenetre.Button3.configure(state=Tkinter.DISABLED)
+        self.fenetre.Button3.configure(state=DISABLED)
         self.fenetre.TCheckbutton1.configure(variable=self.civilite[0],
                                              command=lambda: self.changer_civilit(0))
         self.fenetre.TCheckbutton2.configure(variable=self.civilite[1],
@@ -164,9 +173,9 @@ class CarnetAdresse(object):
             # _nom = quidam.find('Civilité').attrib['autre'] + ' ' + _prenom + _nom_famille
         return _nom
 
-    def remplir_canvas(self, canvas_e, quidam, _FONT):
+    def remplir_canvas(self, canvas_e, quidam, font_used):
         # Canvas dans la fenêtre
-        canvas_e.delete(Tkinter.ALL)
+        canvas_e.delete(ALL)
         canvas_e.create_rectangle(0, 0, 423, 278, fill='White', outline='White')
         # Ecriture
         position_x = 50
@@ -174,28 +183,30 @@ class CarnetAdresse(object):
         _nom = self.format_nom(quidam)
         if quidam.find('Adresse2').text:
             # Canvas
-            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
+            canvas_e.create_text(position_x, position_y, font=font_used, text=_nom, anchor='nw')
             canvas_e.create_text(position_x, position_y + 20,
-                                 font=_FONT, text=quidam.find(unicode('Adresse1')).text,
+                                 font=font_used, text=quidam.find(unicode('Adresse1')).text,
                                  anchor='nw')
             canvas_e.create_text(position_x, position_y + 40,
-                                 font=_FONT, text=quidam.find('Adresse2').text,
+                                 font=font_used, text=quidam.find('Adresse2').text,
                                  anchor='nw')
             canvas_e.create_text(position_x, position_y + 60,
-                                 font=_FONT, text=quidam.find('CodePostal').text + ' ' +
-                                                  quidam.find('Ville').text,
+                                 font=font_used, text=" ".join([quidam.find('CodePostal'),
+                                                                quidam.find('Ville').text]),
                                  anchor='nw')
         else:
             # Canvas
-            canvas_e.create_text(position_x, position_y, font=_FONT, text=_nom, anchor='nw')
+            canvas_e.create_text(position_x, position_y,
+                                 font=font_used, text=_nom,
+                                 anchor='nw')
             canvas_e.create_text(position_x, position_y + 20,
-                                 font=_FONT, text=quidam.find('Adresse1').text,
+                                 font=font_used, text=quidam.find('Adresse1').text,
                                  anchor='nw')
             canvas_e.create_text(position_x,
                                  position_y + 40,
-                                 font=_FONT,
-                                 text=quidam.find('CodePostal').text + ' ' +
-                                      quidam.find('Ville').text,
+                                 font=font_used,
+                                 text=" ".join([quidam.find('CodePostal'),
+                                                quidam.find('Ville').text]),
                                  anchor='nw')
 
     def enveloppe(self, canvas_e, quidam):
@@ -219,9 +230,9 @@ class CarnetAdresse(object):
         canvas_e.create_image(335, 10, image=self.timbre, anchor='nw')
 
     def imprimer(self, type_imp, *args):
-        self.fenetre.Button9.configure(state=Tkinter.DISABLED)
-        self.fenetre.TButton10.configure(state=Tkinter.DISABLED)
-        self.fenetre.TButton11.configure(state=Tkinter.DISABLED)
+        self.fenetre.Button9.configure(state=DISABLED)
+        self.fenetre.TButton10.configure(state=DISABLED)
+        self.fenetre.TButton11.configure(state=DISABLED)
         imprimante = subprocess.Popen(["lpstat", "-d"],
                                       stdout=subprocess.PIPE).stdout.readline().split(': ')[1][0:-1]
         #
@@ -241,7 +252,7 @@ class CarnetAdresse(object):
                 thread_verif.start()
 
     def imprimer_liste(self, imprimante, *args):
-        liste = self.fenetre.Scrolledlistbox2.get(0, Tkinter.END)
+        liste = self.fenetre.Scrolledlistbox2.get(0, END)
         nombre = len(liste)
         tic = 0
         if nombre >= 10:
@@ -268,27 +279,27 @@ class CarnetAdresse(object):
                     tic += 1
                     while self.id_imp.poll() is None:
                         sleep(1)
-        self.fenetre.Button9.configure(state=Tkinter.NORMAL)
-        self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
-        self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
+        self.fenetre.Button9.configure(state=NORMAL)
+        self.fenetre.TButton10.configure(state=NORMAL)
+        self.fenetre.TButton11.configure(state=NORMAL)
 
     def verif_impression(self, *args):
         while self.id_imp.poll() is None:
             sleep(1)
-        self.fenetre.Button9.configure(state=Tkinter.NORMAL)
-        self.fenetre.TButton10.configure(state=Tkinter.NORMAL)
-        self.fenetre.TButton11.configure(state=Tkinter.NORMAL)
+        self.fenetre.Button9.configure(state=NORMAL)
+        self.fenetre.TButton10.configure(state=NORMAL)
+        self.fenetre.TButton11.configure(state=NORMAL)
 
     def lettre_selection(self, _parent):
         _lettre = self.value_liste[_parent.current()]
-        # self.fenetre.Scrolledlistbox1.subwidget_list['listbox'].delete(0, Tkinter.END)
+        # self.fenetre.Scrolledlistbox1.subwidget_list['listbox'].delete(0, END)
         liste_tempo = {}
-        self.fenetre.Scrolledlistbox1.delete(0, Tkinter.END)
+        self.fenetre.Scrolledlistbox1.delete(0, END)
         for _personne in self.liste:
-            if _personne.find('Nom').text[0] == _lettre or \
-                    _lettre == 'Toutes' or \
-                    (_personne.find('Nom').text[0] == 'd' and \
-                     _personne.find('Nom').text.split()[1][0] == _lettre):
+            if (_personne.find('Nom').text[0] == _lettre or
+                    _lettre == 'Toutes' or
+                    (_personne.find('Nom').text[0] == 'd' and
+                     _personne.find('Nom').text.split()[1][0] == _lettre)):
                 _nom = self.format_nom(_personne)
                 if _personne.find('Nom').text[0] == 'd':
                     liste_tempo[_personne.find('Nom').text.split()[1] + unicode(_personne.find('Prénom').text)] = _nom
@@ -296,12 +307,12 @@ class CarnetAdresse(object):
                     liste_tempo[_personne.find('Nom').text + unicode(_personne.find('Prénom').text)] = _nom
                 # self.fenetre.Scrolledlistbox1.subwidget_list['listbox'].insert(0,_nom)
         for quidam in sorted(liste_tempo.keys()):
-            self.fenetre.Scrolledlistbox1.insert(Tkinter.END, liste_tempo[quidam])
+            self.fenetre.Scrolledlistbox1.insert(END, liste_tempo[quidam])
 
     def personne_selection(self, nombre, *args):
         if nombre == 1:
             _ajout = self.fenetre.Scrolledlistbox1.selection_get()
-            if _ajout not in self.fenetre.Scrolledlistbox2.get(0, Tkinter.END):
+            if _ajout not in self.fenetre.Scrolledlistbox2.get(0, END):
                 self.fenetre.Scrolledlistbox2.insert(0, _ajout)
                 for _personne in self.liste:
                     _nom = self.format_nom(_personne)
@@ -315,7 +326,7 @@ class CarnetAdresse(object):
         else:
             for _personne in self.liste:
                 _nom = self.format_nom(_personne)
-                if _nom not in self.fenetre.Scrolledlistbox2.get(0, Tkinter.END):
+                if _nom not in self.fenetre.Scrolledlistbox2.get(0, END):
                     self.fenetre.Scrolledlistbox2.insert(0, _nom)
                 if not _personne.find('Sélection'):
                     liste_select = ElementTree.Element('Sélection')
@@ -329,7 +340,7 @@ class CarnetAdresse(object):
             num = self.fenetre.Scrolledlistbox2.curselection()
             self.fenetre.Scrolledlistbox2.delete(num)
         else:
-            self.fenetre.Scrolledlistbox2.delete(0, Tkinter.END)
+            self.fenetre.Scrolledlistbox2.delete(0, END)
 
     def selection(self, e, *args):
         _ajout = self.fenetre.Scrolledlistbox1.selection_get()
@@ -364,7 +375,7 @@ class CarnetAdresse(object):
             if ecrire:
                 if test == num:
                     self.tout_effacer()
-                    self.fenetre.Button3.configure(state=Tkinter.NORMAL)
+                    self.fenetre.Button3.configure(state=NORMAL)
                     self.fenetre.Entry2.insert(0,
                                                _personne.find('Nom').text)
                     try:
@@ -397,7 +408,7 @@ class CarnetAdresse(object):
                         self.fenetre.Entry7.insert(0,
                                                    _personne.find('Civilité').attrib['autre'])
                     for info in _personne.findall('Divers'):
-                        self.fenetre.Entry8.insert(Tkinter.END,
+                        self.fenetre.Entry8.insert(END,
                                                    info.text + "\n")
                     tele = _personne.find('Téléphone')
                     if tele.find('Numéro') is not None:
@@ -419,18 +430,18 @@ class CarnetAdresse(object):
             self.fenetre.TButton6.config(command=lambda: self.chercher(0))
 
     def tout_effacer(self, *args):
-        self.fenetre.Entry1.delete(0, Tkinter.END)
-        self.fenetre.Entry2.delete(0, Tkinter.END)
-        self.fenetre.Entry3.delete(0, Tkinter.END)
-        self.fenetre.Entry4.delete(0, Tkinter.END)
-        self.fenetre.Entry5.delete(0, Tkinter.END)
-        self.fenetre.Entry6.delete(0, Tkinter.END)
-        self.fenetre.Entry7.delete(0, Tkinter.END)
-        self.fenetre.Entry8.delete(0.0, Tkinter.END)
-        # self.fenetre.Text1.configure(state=Tkinter.NORMAL)
-        # self.fenetre.Text1.delete(0.0, Tkinter.END)
-        # self.fenetre.Text1.configure(state=Tkinter.DISABLED)
-        self.fenetre.Text3.delete(0.0, Tkinter.END)
+        self.fenetre.Entry1.delete(0, END)
+        self.fenetre.Entry2.delete(0, END)
+        self.fenetre.Entry3.delete(0, END)
+        self.fenetre.Entry4.delete(0, END)
+        self.fenetre.Entry5.delete(0, END)
+        self.fenetre.Entry6.delete(0, END)
+        self.fenetre.Entry7.delete(0, END)
+        self.fenetre.Entry8.delete(0.0, END)
+        # self.fenetre.Text1.configure(state=NORMAL)
+        # self.fenetre.Text1.delete(0.0, END)
+        # self.fenetre.Text1.configure(state=DISABLED)
+        self.fenetre.Text3.delete(0.0, END)
         for i in range(0, 6):
             self.civilite[i].set(0)
         self.fenetre.TButton6.configure(text='''Chercher''')
@@ -440,21 +451,21 @@ class CarnetAdresse(object):
         # print args
         num = args[0]
         if num == 1:
-            self.fenetre.Entry1.delete(0, Tkinter.END)
+            self.fenetre.Entry1.delete(0, END)
         if num == 2:
-            self.fenetre.Entry2.delete(0, Tkinter.END)
+            self.fenetre.Entry2.delete(0, END)
         if num == 3:
-            self.fenetre.Entry3.delete(0, Tkinter.END)
+            self.fenetre.Entry3.delete(0, END)
         if num == 4:
-            self.fenetre.Entry4.delete(0, Tkinter.END)
+            self.fenetre.Entry4.delete(0, END)
         if num == 5:
-            self.fenetre.Entry5.delete(0, Tkinter.END)
+            self.fenetre.Entry5.delete(0, END)
         if num == 4:
-            self.fenetre.Entry6.delete(0, Tkinter.END)
+            self.fenetre.Entry6.delete(0, END)
         if num == 6:
-            self.fenetre.Entry8.delete(0, Tkinter.END)
+            self.fenetre.Entry8.delete(0, END)
         if num == 7:
-            self.fenetre.Entry7.delete(0, Tkinter.END)
+            self.fenetre.Entry7.delete(0, END)
             for i in range(0, 6):
                 self.civilite[i].set(0)
 
@@ -468,9 +479,9 @@ class CarnetAdresse(object):
             ajout.text = self.fenetre.Entry18.get()
             element.append(ajout)
             self.carnet.write(self.nom_fichier, encoding='UTF-8')
-        self.fenetre.Text3.delete(0.0, Tkinter.END)
-        self.fenetre.Entry17.delete(0, Tkinter.END)
-        self.fenetre.Entry18.delete(0, Tkinter.END)
+        self.fenetre.Text3.delete(0.0, END)
+        self.fenetre.Entry17.delete(0, END)
+        self.fenetre.Entry18.delete(0, END)
         self.chercher(0)
 
     def supprimer_tel(self, element, *args):
@@ -481,9 +492,9 @@ class CarnetAdresse(object):
                     notel.text == num:
                 element.remove(notel)
         self.carnet.write(self.nom_fichier, encoding='UTF-8')
-        self.fenetre.Text3.delete(0.0, Tkinter.END)
-        self.fenetre.Entry17.delete(0, Tkinter.END)
-        self.fenetre.Entry18.delete(0, Tkinter.END)
+        self.fenetre.Text3.delete(0.0, END)
+        self.fenetre.Entry17.delete(0, END)
+        self.fenetre.Entry18.delete(0, END)
         self.chercher(0)
 
     def supprimer(self, num, *args):
@@ -494,41 +505,41 @@ class CarnetAdresse(object):
                         _personne.find('Prénom').text == self.fenetre.Entry3.get():
                     if num == 0:
                         self.fenetre.Button3.config(command=lambda: self.supprimer(1))
-                        self.fenetre.Button2.configure(state=Tkinter.NORMAL)
+                        self.fenetre.Button2.configure(state=NORMAL)
                         self.fenetre.Button2.config(command=lambda: self.supprimer(2))
-                        self.fenetre.Button1.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
-                        self.fenetre.Text1.tag_remove("NOIR", 0.0, Tkinter.END)
+                        self.fenetre.Button1.configure(state=DISABLED)
+                        self.fenetre.Text1.configure(state=NORMAL)
+                        self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, "Voulez-vous vraiment supprimer " +
                                                   self.fenetre.Entry3.get() +
                                                   " " + self.fenetre.Entry2.get() +
                                                   "?\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
                     elif num == 1:
                         self.liste.remove(_personne)
                         self.fenetre.Button3.config(command=lambda: self.supprimer(0))
-                        self.fenetre.Button3.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Button2.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Button3.configure(state=DISABLED)
+                        self.fenetre.Button2.configure(state=DISABLED)
                         self.fenetre.Button2.config(command=lambda: self.enregistrer(2))
-                        self.fenetre.Button1.configure(state=Tkinter.NORMAL)
+                        self.fenetre.Button1.configure(state=NORMAL)
                         #
                         self.carnet.write(self.nom_fichier, encoding='UTF-8')
                         entree = self.fenetre.Entry3.get() + " " + self.fenetre.Entry2.get()
                         self.tout_effacer()
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
-                        self.fenetre.Text1.tag_remove("NOIR", 0.0, Tkinter.END)
+                        self.fenetre.Text1.configure(state=NORMAL)
+                        self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, "Entrée " + entree + " supprimée.\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
                         entree = ''
                     else:
                         self.fenetre.Button3.config(command=lambda: self.supprimer(0))
-                        self.fenetre.Button3.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Button2.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Button1.configure(state=Tkinter.NORMAL)
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
-                        self.fenetre.Text1.tag_remove("NOIR", 0.0, Tkinter.END)
+                        self.fenetre.Button3.configure(state=DISABLED)
+                        self.fenetre.Button2.configure(state=DISABLED)
+                        self.fenetre.Button1.configure(state=NORMAL)
+                        self.fenetre.Text1.configure(state=NORMAL)
+                        self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, "Suppression annulée.\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
             #
             self.fenetre.TButton6.configure(text='''Chercher''')
             self.fenetre.TButton6.config(command=lambda: self.chercher(0))
@@ -549,14 +560,14 @@ class CarnetAdresse(object):
                     if num == 0:
                         self.fenetre.Button1.configure(text='''Modifier''')
                         self.fenetre.Button1.config(command=lambda: self.enregistrer(1))
-                        self.fenetre.Button2.configure(state=Tkinter.NORMAL)
-                        self.fenetre.Button3.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
+                        self.fenetre.Button2.configure(state=NORMAL)
+                        self.fenetre.Button3.configure(state=DISABLED)
+                        self.fenetre.Text1.configure(state=NORMAL)
                         self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, self.fenetre.Entry3.get() +
                                                   " " + self.fenetre.Entry2.get() +
                                                   " existe déja. Modifier?\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
                     elif num == 1:
                         try:
                             _personne.find('Adresse1').text = self.fenetre.Entry4.get()
@@ -582,7 +593,7 @@ class CarnetAdresse(object):
                                 if i == 5:
                                     _personne.find('Civilité').set('autre',
                                                                    self.fenetre.Entry7.get())
-                        texte = self.fenetre.Entry8.get(0.0, Tkinter.END).split('\n')
+                        texte = self.fenetre.Entry8.get(0.0, END).split('\n')
                         # print texte
                         vieuxtexte = []
                         for info in _personne.findall('Divers'):
@@ -599,23 +610,23 @@ class CarnetAdresse(object):
                                     _personne.append(ajout)
                         self.fenetre.Button1.configure(text='''Enregistrer''')
                         self.fenetre.Button1.config(command=lambda: self.enregistrer(0))
-                        self.fenetre.Button2.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Button2.configure(state=DISABLED)
                         #
                         self.carnet.write(self.nom_fichier, encoding='UTF-8')
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
+                        self.fenetre.Text1.configure(state=NORMAL)
                         self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, self.fenetre.Entry3.get() +
                                                   " " + self.fenetre.Entry2.get() +
                                                   " modifié.\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
                     else:
                         self.fenetre.Button1.configure(text='''Enregistrer''')
                         self.fenetre.Button1.config(command=lambda: self.enregistrer(0))
-                        self.fenetre.Button2.configure(state=Tkinter.DISABLED)
-                        self.fenetre.Text1.configure(state=Tkinter.NORMAL)
+                        self.fenetre.Button2.configure(state=DISABLED)
+                        self.fenetre.Text1.configure(state=NORMAL)
                         self.fenetre.Text1.tag_remove("NOIR", 0.0, END)
                         self.fenetre.Text1.insert(0.0, "Opération annulée.\n", "NOIR")
-                        self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                        self.fenetre.Text1.configure(state=DISABLED)
             #
             if not chgt:
                 # copie du modèle
@@ -647,10 +658,10 @@ class CarnetAdresse(object):
                                                        self.fenetre.Entry7.get())
                 self.liste.append(ajout)
                 self.carnet.write(self.nom_fichier, encoding='UTF-8')
-                self.fenetre.Text1.configure(state=Tkinter.NORMAL)
+                self.fenetre.Text1.configure(state=NORMAL)
                 self.fenetre.Text1.insert(0.0, self.fenetre.Entry3.get() + " " +
                                           self.fenetre.Entry2.get() + " enregistré.\n", "NOIR")
-                self.fenetre.Text1.configure(state=Tkinter.DISABLED)
+                self.fenetre.Text1.configure(state=DISABLED)
             self.fenetre.TButton6.configure(text='''Chercher''')
             self.fenetre.TButton6.config(command=lambda: self.chercher(0))
             for _personne in self.liste:
