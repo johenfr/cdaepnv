@@ -25,7 +25,7 @@ except ImportError:
     import tkMessageBox
     import tkFont
 
- 
+
 import subprocess
 from time import sleep
 from threading import Thread
@@ -147,6 +147,8 @@ class CarnetAdresse(object):
         #
         self.fenetre.Text1.configure(foreground="grey")
         self.fenetre.Text1.tag_configure("NOIR", foreground="black")
+        #
+        self.id_imp = None
 
     @staticmethod
     def format_nom(quidam):
@@ -221,15 +223,15 @@ class CarnetAdresse(object):
                     outfile.write(line)
                     if "EndComments" in line:
                         with open('Montez.pfa') as fontfile:
-                            for line in fontfile:
-                                if line[0] != "%":
-                                    outfile.write(line)
+                            for ligne in fontfile:
+                                if ligne[0] != "%":
+                                    outfile.write(ligne)
         os.remove('enveloppe_tempo.ps')
         # réduire la taille pour l'aperçu
         self.remplir_canvas(canvas_e, quidam, _FONT_min)
         canvas_e.create_image(335, 10, image=self.timbre, anchor='nw')
 
-    def imprimer(self, type_imp, *args):
+    def imprimer(self, type_imp, *_):
         self.fenetre.Button9.configure(state=DISABLED)
         self.fenetre.TButton10.configure(state=DISABLED)
         self.fenetre.TButton11.configure(state=DISABLED)
@@ -251,7 +253,7 @@ class CarnetAdresse(object):
                 thread_verif = Thread(None, self.verif_impression, None, (), {})
                 thread_verif.start()
 
-    def imprimer_liste(self, imprimante, *args):
+    def imprimer_liste(self, _imprimante, *_):
         liste = self.fenetre.Scrolledlistbox2.get(0, END)
         nombre = len(liste)
         tic = 0
@@ -283,7 +285,7 @@ class CarnetAdresse(object):
         self.fenetre.TButton10.configure(state=NORMAL)
         self.fenetre.TButton11.configure(state=NORMAL)
 
-    def verif_impression(self, *args):
+    def verif_impression(self, *_):
         while self.id_imp.poll() is None:
             sleep(1)
         self.fenetre.Button9.configure(state=NORMAL)
@@ -309,7 +311,7 @@ class CarnetAdresse(object):
         for quidam in sorted(liste_tempo.keys()):
             self.fenetre.Scrolledlistbox1.insert(END, liste_tempo[quidam])
 
-    def personne_selection(self, nombre, *args):
+    def personne_selection(self, nombre, *_):
         if nombre == 1:
             _ajout = self.fenetre.Scrolledlistbox1.selection_get()
             if _ajout not in self.fenetre.Scrolledlistbox2.get(0, END):
@@ -335,21 +337,21 @@ class CarnetAdresse(object):
                 else:
                     _personne.find('Sélection').text = '1'
 
-    def personne_deselection(self, nombre, *args):
+    def personne_deselection(self, nombre, *_):
         if nombre == 1:
             num = self.fenetre.Scrolledlistbox2.curselection()
             self.fenetre.Scrolledlistbox2.delete(num)
         else:
             self.fenetre.Scrolledlistbox2.delete(0, END)
 
-    def selection(self, e, *args):
+    def selection(self, _e, *_):
         _ajout = self.fenetre.Scrolledlistbox1.selection_get()
         for _personne in self.liste:
             _nom = self.format_nom(_personne)
             if _nom in _ajout:
                 self.enveloppe(self.fenetre.Canvas1, _personne)
 
-    def chercher(self, num, nom_i=1, prenom_i=1, *args):
+    def chercher(self, num, nom_i=1, prenom_i=1, *_):
         if nom_i == 1:
             _nom_i = self.fenetre.Entry2.get()
             _prenom_i = self.fenetre.Entry3.get()
@@ -429,7 +431,7 @@ class CarnetAdresse(object):
             self.fenetre.TButton6.configure(text='''Chercher''')
             self.fenetre.TButton6.config(command=lambda: self.chercher(0))
 
-    def tout_effacer(self, *args):
+    def tout_effacer(self, *_):
         self.fenetre.Entry1.delete(0, END)
         self.fenetre.Entry2.delete(0, END)
         self.fenetre.Entry3.delete(0, END)
@@ -469,7 +471,7 @@ class CarnetAdresse(object):
             for i in range(0, 6):
                 self.civilite[i].set(0)
 
-    def ajouter(self, element, *args):
+    def ajouter(self, element, *_):
         # print element.tag.encode('utf8')
         ajout = ElementTree.Element('Numéro')
         if self.fenetre.Entry17.get() != '' and \
@@ -484,7 +486,7 @@ class CarnetAdresse(object):
         self.fenetre.Entry18.delete(0, END)
         self.chercher(0)
 
-    def supprimer_tel(self, element, *args):
+    def supprimer_tel(self, element, *_):
         nom = self.fenetre.Entry17.get()
         num = self.fenetre.Entry18.get()
         for notel in element.findall('Numéro'):
@@ -497,7 +499,7 @@ class CarnetAdresse(object):
         self.fenetre.Entry18.delete(0, END)
         self.chercher(0)
 
-    def supprimer(self, num, *args):
+    def supprimer(self, num, *_):
         if len(self.fenetre.Entry2.get()) > 1 or \
                 len(self.fenetre.Entry3.get()) > 1:
             for _personne in self.liste:
@@ -549,7 +551,7 @@ class CarnetAdresse(object):
                     self.fenetre.Button11.config(command=lambda: self.ajouter(_personne))
                     self.fenetre.Button12.config(command=lambda: self.supprimer_tel(_personne))
 
-    def enregistrer(self, num, *args):
+    def enregistrer(self, num, *_):
         # print args
         if len(self.fenetre.Entry2.get()) > 1 or len(self.fenetre.Entry3.get()) > 1:
             chgt = False
@@ -670,7 +672,7 @@ class CarnetAdresse(object):
                     self.fenetre.Button11.config(command=lambda: self.ajouter(_personne))
                     self.fenetre.Button12.config(command=lambda: self.supprimer_tel(_personne))
 
-    def changer_civilit(self, num, *args):
+    def changer_civilit(self, num, *_):
         for i in range(0, 6):
             if i == num:
                 self.civilite[i].set(1)
