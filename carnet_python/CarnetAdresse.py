@@ -66,9 +66,12 @@ class CarnetAdresse(object):
             StringVar()
         ]
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.timbre = PhotoImage(file=os.path.join(self.dir_path,
-                                                   "timbre_pie_xii.gif"))
-        self.nom_fichier = os.environ['HOME'] + '/.carnet/Carnet_d_adresses.xml'
+        self.timbre = PhotoImage(
+            file=os.path.join(self.dir_path, "timbre_pie_xii.gif"))
+        if 'HOME' in os.environ.keys():
+            self.nom_fichier = os.getenv('HOME') + '/.carnet/Carnet_d_adresses.xml'
+        else:
+            self.nom_fichier = os.getenv('LOCALAPPDATA').replace('\\', '/') + '/.carnet/Carnet_d_adresses.xml'
         #
         try:
             _fichier = open(self.nom_fichier, 'r')
@@ -77,9 +80,7 @@ class CarnetAdresse(object):
             _fichier.write('<?xml version="1.0" encoding="UTF-8"?>\n<Carnet/>')
             _fichier.close()
             _fichier = open(self.nom_fichier, 'r')
-        self.carnet = ElementTree.parse(_fichier,
-                                        parser=ElementTree.XMLParser(
-                                            encoding="utf-8"))
+        self.carnet = ElementTree.parse(_fichier, parser=ElementTree.XMLParser(encoding="utf-8"))
         _fichier.close()
         self.liste = self.carnet.getroot()
         self.liste[:] = sorted(self.liste, key=self.clef)
@@ -152,6 +153,11 @@ class CarnetAdresse(object):
 
     @staticmethod
     def format_nom(quidam):
+        """
+        Formate le nom d'un quidam en fonction de la civilité
+        :param quidam:
+        :return:
+        """
         try:
             _prenom = quidam.find('Prénom').text + ' '
         except TypeError:
